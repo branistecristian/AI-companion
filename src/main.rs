@@ -14,8 +14,10 @@ use embassy_rp::i2c::{self, I2c, InterruptHandler as I2CInterruptHandler, Config
 use embassy_rp::peripherals::{PIN_10, PIN_11};
 use embassy_time::{Timer, Duration};
 
+
+use embedded_graphics::mono_font::MonoTextStyle;
 use embedded_graphics::{
-    mono_font::{ascii::FONT_6X10, MonoTextStyle},
+    mono_font::ascii::FONT_10X20,
     pixelcolor::BinaryColor,
     prelude::*,
     text::Text,
@@ -35,6 +37,45 @@ use embassy_rp::bind_interrupts;
 
 use embedded_hal_async::i2c::{Error, I2c as _};
 use embassy_rp::peripherals::I2C0;
+
+use embedded_graphics::{
+    image::{ImageRaw, Image},
+};
+
+// Sample 16x16 smiley bitmap (1-bit mono)
+const SMILEY: &[u8] = &[
+    0b00111100,
+    0b01000010,
+    0b10100101,
+    0b10000001,
+    0b10100101,
+    0b10011001,
+    0b01000010,
+    0b00111100,
+    0, 0, 0, 0, 0, 0, 0, 0 // padding for 16x16
+];
+
+const BIG_SMILEY: &[u8] = &[
+    0b00000011, 0b11000000,
+    0b00001100, 0b00110000,
+    0b00010010, 0b01001000,
+    0b00100000, 0b00000100,
+    0b00100010, 0b01000100,
+    0b00010100, 0b00101000,
+    0b00001000, 0b00010000,
+    0b00000111, 0b11100000,
+    // bottom half mirrored
+    0b00000111, 0b11100000,
+    0b00001000, 0b00010000,
+    0b00010100, 0b00101000,
+    0b00100010, 0b01000100,
+    0b00100000, 0b00000100,
+    0b00010010, 0b01001000,
+    0b00001100, 0b00110000,
+    0b00000011, 0b11000000,
+];
+
+
 
 
 #[embassy_executor::main]
@@ -67,13 +108,31 @@ async fn main(spawner: Spawner) {
     display.init().unwrap();
     display.flush().unwrap();
 
-    let text_style = MonoTextStyle::new(&FONT_6X10, BinaryColor::On);
+    let text_style = MonoTextStyle::new(&FONT_10X20, BinaryColor::On);
     Text::new("Hello :)", Point::new(32, 32), text_style)
         .draw(&mut display)
         .unwrap();
     display.flush().unwrap();
 
     loop {
-        Timer::after(Duration::from_secs(1)).await;
+        display.clear(BinaryColor::Off).unwrap();
+    
+        // Show smiley as an emoji
+        let text_style = MonoTextStyle::new(&FONT_10X20, BinaryColor::On);
+        Text::new("MOOD: :)", Point::new(10, 50), text_style)
+            .draw(&mut display)
+            .unwrap();
+
+        let raw_image = ImageRaw::<BinaryColor>::new(SMILEY, 16);
+        let image = Image::new(&raw_image, Point::new(60, 24));
+        image.draw(&mut display).unwrap();
+    
+        display.flush().unwrap();
+        Timer::after(Duration::from_millis(500)).await;
+    
+        // blink it off
+        display.clear(BinaryColor::Off).unwrap();
+        display.flush().unwrap();
+        Timer::after(Duration::from_millis(200)).await;
     }
 }
