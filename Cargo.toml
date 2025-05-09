@@ -17,6 +17,9 @@ rust-version.workspace = true
 # Lab utilities
 embassy-lab-utils = { path = "./embassy-lab-utils" }
 
+# Interface utility 
+ssd1306 = { version = "0.8.4", features = ["graphics"] }
+
 # Embedded hal utilities
 embassy-embedded-hal = { version = "0.3.0", git = "https://github.com/embassy-rs/embassy", rev = "2e7a2b6", features = ["defmt"] }
 
@@ -113,7 +116,7 @@ embedded-sdmmc = "0.7.0"
 byte-slice-cast = { version = "1.2.0", default-features = false }
 
 
-# This table is used to specify the member crates of this workspace.
+# This table is used to specify the member crat1es of this workspace.
 [workspace]
 members = ["./embassy-lab-utils"]
 # The resolver is a component responsible for determining the versions of
