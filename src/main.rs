@@ -10,6 +10,10 @@
 use {defmt_rtt as _, panic_probe as _}; // for logging + panic handling
 
 use embassy_executor::Spawner;
+
+use embassy_rp::adc::{Adc, AdcPin, Channel, Config as AdcConfig};
+use embassy_rp::adc::AdcChannel;
+use embassy_rp::gpio::Pull;
 use embassy_rp::i2c::{self, I2c, InterruptHandler as I2CInterruptHandler, Config as I2cConfig};
 use embassy_rp::peripherals::{PIN_10, PIN_11};
 use embassy_time::{Timer, Duration};
@@ -84,7 +88,8 @@ async fn main(spawner: Spawner) {
     let peripherals = embassy_rp::init(Default::default());
 
     bind_interrupts!(struct Irqs {
-        I2C0_IRQ => i2c::InterruptHandler<I2C0>;
+    I2C0_IRQ => i2c::InterruptHandler<I2C0>;
+    ADC_IRQ_FIFO => embassy_rp::adc::InterruptHandler;
     });
 
     let i2c = I2c::new_async(
@@ -95,8 +100,14 @@ async fn main(spawner: Spawner) {
         I2cConfig::default(),
     );
 
+    // DEBUG
     info!("Hello world!");
 
+    // ADC setup
+    let mut adc = Adc::new(peripherals.ADC, Irqs, AdcConfig::default());
+    let mut mic_pin = Channel::new_pin(peripherals.PIN_26, Pull::None); 
+
+    // -- I2C setup FOR OLED
     let interface = I2CDisplayInterface::new(i2c);
     let mut display: Ssd1306<_, _, BufferedGraphicsMode<_>> = Ssd1306::new(
         interface,
@@ -113,8 +124,21 @@ async fn main(spawner: Spawner) {
         .draw(&mut display)
         .unwrap();
     display.flush().unwrap();
+    // -- I2C setup FOR OLED
 
     loop {
+        // MICROPHONE PART TESTING
+        // Read mic level
+        let mic_level: u16 = adc.read(&mut mic_pin).await.unwrap();
+        let bars = (mic_level as usize * 10) / 4095;
+        let mut bar_buf = [b' '; 10]; // 10 spaces
+        for i in 0..bars {
+            bar_buf[i] = b'*';
+        }
+        info!("Mic level: {} | {:?}", mic_level, core::str::from_utf8(&bar_buf).unwrap());
+        
+
+
         display.clear(BinaryColor::Off).unwrap();
     
         // Show smiley as an emoji
@@ -123,9 +147,9 @@ async fn main(spawner: Spawner) {
             .draw(&mut display)
             .unwrap();
 
-        let raw_image = ImageRaw::<BinaryColor>::new(SMILEY, 16);
-        let image = Image::new(&raw_image, Point::new(60, 24));
-        image.draw(&mut display).unwrap();
+        // let raw_image = ImageRaw::<BinaryColor>::new(SMILEY, 16);
+        // let image = Image::new(&raw_image, Point::new(60, 24));
+        // image.draw(&mut display).unwrap();
     
         display.flush().unwrap();
         Timer::after(Duration::from_millis(500)).await;
