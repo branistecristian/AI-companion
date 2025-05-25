@@ -17,8 +17,11 @@ rust-version.workspace = true
 # Lab utilities
 embassy-lab-utils = { path = "./embassy-lab-utils" }
 
+alloc-cortex-m = "0.4.0"
+
 # Interface utility 
 ssd1306 = { version = "0.8.4", features = ["graphics"] }
+unicode-segmentation = { version = "1.11", default-features = false }
 
 # Embedded hal utilities
 embassy-embedded-hal = { version = "0.3.0", git = "https://github.com/embassy-rs/embassy", rev = "2e7a2b6", features = ["defmt"] }
@@ -44,10 +47,17 @@ embassy-usb = { version = "0.4.0", git = "https://github.com/embassy-rs/embassy"
 # Network stack
 embassy-net = { version = "0.7.0", git = "https://github.com/embassy-rs/embassy", rev = "2e7a2b6", features = ["defmt", "tcp", "udp", "raw", "dhcpv4", "medium-ethernet", "dns"] }
 embassy-net-wiznet = { version = "0.2.0", git = "https://github.com/embassy-rs/embassy", rev = "2e7a2b6", features = ["defmt"] }
+embedded-tls = { version = "0.17.0", default-features = false }
+
+# Microphone I2S
+pio = "0.2"
+pio-proc = "0.2"
+fugit = "0.3"
 
 # USB logging
 embassy-usb-logger = { version = "0.4.0", git = "https://github.com/embassy-rs/embassy", rev = "2e7a2b6" }
 log = "0.4"
+usb-device       = "0.2"
 
 # WiFi Chip
 cyw43 = { version = "0.3.0", git = "https://github.com/embassy-rs/embassy", rev = "2e7a2b6", features = ["defmt", "firmware-logs"] }
@@ -55,7 +65,7 @@ cyw43-pio = { version = "0.3.0", git = "https://github.com/embassy-rs/embassy", 
 
 # Defmt support
 defmt = "0.3"
-defmt-rtt = "0.4"
+defmt-rtt = "0.4" 
 
 # Fixed-point numbers
 fixed = "1.23.1"
@@ -66,7 +76,7 @@ serde = { version = "1.0.203", default-features = false, features = ["derive"] }
 serde-json-core = "0.5.1"
 
 # Low level access to Cortex-M processors
-# cortex-m = { version = "0.7.6", features = ["inline-asm"] }
+cortex-m = { version = "0.7.7", features = ["inline-asm"] }
 cortex-m-rt = "0.7.0"
 
 # Critical section primitive
@@ -88,6 +98,8 @@ mipidsi = "0.8.0"
 # Heapless allocator
 heapless = "0.8"
 
+byteorder = { version = "1.5.0", default-features = false }
+
 # The main embedded hal with only blocking traits
 embedded-hal-1 = { package = "embedded-hal", version = "1.0" }
 
@@ -100,6 +112,9 @@ embedded-hal-bus = { version = "0.1", features = ["async"] }
 # Async IO traits for embedded systems
 embedded-io-async = { version = "0.6.1", features = ["defmt-03"] }
 
+# rtt-target
+rtt-target = { version = "0.6.1", features = ["defmt"] }
+
 # Statically allocated, initialized at runtime cell
 static_cell = "2.1"
 
@@ -108,6 +123,10 @@ embedded-storage = { version = "0.3" }
 
 # Random number generators
 rand = { version = "0.8.5", default-features = false }
+rand_core = "0.6"
+
+# For DNS
+embedded-nal-async = "0.8.0"
 
 # Support for read/write files on a FAT formatted SD
 embedded-sdmmc = "0.7.0"
@@ -131,4 +150,5 @@ rust-version = "1.85"
 edition = "2024"
 # Rust follows the concept of Semantic Versioning.
 version = "0.1.0"
+
 
