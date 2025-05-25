@@ -16,7 +16,6 @@ rust-version.workspace = true
 [dependencies]
 # Lab utilities
 embassy-lab-utils = { path = "./embassy-lab-utils" }
-
 alloc-cortex-m = "0.4.0"
 
 # Interface utility 

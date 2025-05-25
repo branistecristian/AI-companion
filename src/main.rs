@@ -583,7 +583,7 @@ async fn send_chatgpt_request(stack: &'static Stack<'static>, uart: &mut Uart<'_
                     let last = g.next_back().unwrap_or("🙂");
                     critical_section::with(|cs| *LAST_EMOJI.borrow_ref_mut(cs) = last.chars().next().unwrap());
 
-                    let packet = build_dts33a_packet(&out);
+                    let packet = build_dts33a_packet(&to_show);
                     uart.write(&packet).await.unwrap();
 
                     Timer::after(Duration::from_millis(100)).await;
